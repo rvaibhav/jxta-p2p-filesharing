@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE jxta:CP>
+<jxta:CP type="jxta:PlatformConfig" xmlns:jxta="http://jxta.org">
+	
+	<PID>
+		urn:jxta:cbid-59616261646162614A78746150325033F90939C72ECC62B8F7A9B33A7ABB4F2803
+	</PID>
+	<Name>
+		My peer name
+	</Name>
+	<Desc>
+		Created by NetworkManager
+	</Desc>
+	<Svc>
+		
+		<MCID>
+			urn:jxta:uuid-DEADBEEFDEAFBABAFEEDBABE0000001105
+		</MCID>
+		<Parm>
+			
+			<jxta:TransportAdvertisement xmlns:jxta="http://jxta.org" xml:space="preserve" type="jxta:MulticastTransportAdvertisement">
+				
+<Protocol>tcp</Protocol><MulticastAddr>224.0.1.85</MulticastAddr><MulticastPort>1234</MulticastPort><Mcast_Pool_Size>5</Mcast_Pool_Size><MulticastSize>16384</MulticastSize>			</jxta:TransportAdvertisement>
+		</Parm>
+	</Svc>
+	<Svc>
+		
+		<MCID>
+			urn:jxta:uuid-DEADBEEFDEAFBABAFEEDBABE0000000A05
+		</MCID>
+		<Parm>
+			
+			<jxta:TransportAdvertisement xmlns:jxta="http://jxta.org" xml:space="preserve" type="jxta:HTTPTransportAdvertisement">
+				
+<Protocol>http</Protocol><ConfigMode>auto</ConfigMode><Port>9700</Port><ServerOff/>			</jxta:TransportAdvertisement>
+		</Parm>
+	</Svc>
+	<Svc>
+		
+		<MCID>
+			urn:jxta:uuid-DEADBEEFDEAFBABAFEEDBABE0000000905
+		</MCID>
+		<Parm>
+			
+			<jxta:TransportAdvertisement xmlns:jxta="http://jxta.org" xml:space="preserve" type="jxta:TCPTransportAdvertisement">
+				
+<Protocol>tcp</Protocol><ConfigMode>auto</ConfigMode><Port>9701</Port>			</jxta:TransportAdvertisement>
+		</Parm>
+	</Svc>
+	<Svc>
+		
+		<MCID>
+			urn:jxta:uuid-E549DB3BCBCF4789A392B6100B78CC5505
+		</MCID>
+		<Parm>
+			
+			<jxta:TransportAdvertisement xmlns:jxta="http://jxta.org" xml:space="preserve" type="jxta:TCPTransportAdvertisement">
+				
+<Protocol>http2</Protocol><ServerOff/><ConfigMode>auto</ConfigMode><Port start="8080" end="8089">8080</Port>			</jxta:TransportAdvertisement>
+		</Parm>
+	</Svc>
+	<Svc>
+		
+		<MCID>
+			urn:jxta:uuid-DEADBEEFDEAFBABAFEEDBABE0000000F05
+		</MCID>
+		<Parm type="jxta:RelayConfig" xmlns:jxta="http://jxta.org" xml:space="preserve" client="true">
+			
+<client/><server/>		</Parm>
+	</Svc>
+	<Svc>
+		
+		<MCID>
+			urn:jxta:uuid-DEADBEEFDEAFBABAFEEDBABE0000000605
+		</MCID>
+		<Parm type="jxta:RdvConfig" xmlns:jxta="http://jxta.org" xml:space="preserve" config="client"/>
+	</Svc>
+	<Svc>
+		
+		<MCID>
+			urn:jxta:uuid-DEADBEEFDEAFBABAFEEDBABE0000000505
+		</MCID>
+		<Parm type="jxta:PSEConfig" xmlns:jxta="http://jxta.org" xml:space="preserve">
+			
+<RootCert><Certificate>MIICCDCCAXGgAwIBAgIBATANBgkqhkiG9w0BAQUFADBKMRUwEwYDVQQKDAx3d3cuanh0YS5vcmcx
+EjAQBgNVBAMMCUp4dGFDTi1DQTEdMBsGA1UECwwURkQ5OERFNTI2RjM2RDVEOERCMzYwHhcNMTYw
+MzAxMTAzMDAxWhcNMjYwMzAxMTAzMDAxWjBKMRUwEwYDVQQKDAx3d3cuanh0YS5vcmcxEjAQBgNV
+BAMMCUp4dGFDTi1DQTEdMBsGA1UECwwURkQ5OERFNTI2RjM2RDVEOERCMzYwgZ8wDQYJKoZIhvcN
+AQEBBQADgY0AMIGJAoGBAI+OJTc8qm39kY/RtSO2reEMfdJq1Hh0965CfcjyKz0NjUxj7jOl7hxk
+X/1nOzU1z9NbOAjQ0L7anxVVleae/PhAVGSCORfwzmq/cX6XXIg1Qxabz0vHBz6imfMq2Rhu5gC2
+W1TMZS3qKQXF3oiXDHQB7dhvyGNztC3g6nAuVYCrAgMBAAEwDQYJKoZIhvcNAQEFBQADgYEASgbO
+thHbcgJDzmiCguRXWR58eiJqKZElNdB8QhmuyN7MnIzMMpeuBhWgUL2/4i5nCId9IAPUE0SxcnV+
++6fyrn9Yj5ccFvPIuYIhRsrWxou2nLyKDv96soaW3jjnx928q0r1uq+PBep3RbMvGuDQLyaa0hKL
+OZbuYYt2DMRvGv4=</Certificate><EncryptedPrivateKey algorithm="RSA">MIICoTAbBgkqhkiG9w0BBQMwDgQIipCGSCjA4g4CAgH0BIICgHZ+GHGRo0lrMHHJDQLC2ne1PZWh
+Un5lhAgVNd5Uvv6QR0M88PVoAme3C4uNI5hs5crs51gpefphdr6fAiknJxosZbDoPVxN7e7srcgI
+ZGZa9hrZS8MbqBqwpXJe0QB+80/yK+HTfMKZMtpqL255UGTI9bPI9vZBlWaX7At4tRkQ/qfIdtsQ
+T9bXtNezT9f+2RH1G/7xpO63OuMKkMb0Wq9vQrh4S/Pa/Y5SgBZIShf1eJyrCisrXBznHNEbOJcB
+7WyhsAA4dcXvkzQDkJmCytSvsQ5S7iX6xNMOAZliY8hCZlnWXg+HNXZ/hrIH+LRPUNG32ZaoGgaD
+SYuiYnEJfhURymTpOsF+8A+VWUtNDHh1WpyDpyPlhW31hNhA1weBUp1r86T83j0CMQ9XeDXdhi5+
+iZ7gdZPrTz560wKAITr7zvphP1y6t72yABACQSEZdmxpEw83S58CmEYBrD8Ysl5aB7TXpOkH4mWU
+oYXZef43WoBCgjIVkeQAh6Uwj1rLhFI2lKHuQQCac7kNVkQJlmnBYLBWGmajPdIh607G4Wj49DXT
+IF8b04Te1fP8kjiUbxhidrbTW9/K5+xBYYKXMjfcrlqzjfajcGIP2/Tstt+qlFidwXNTrrz/gAm4
+sMud9rNz3HfJsMEs+mkh4nvZgBHO71vkJFjWVAyO1vBpCOKKITbndebjcBV4mu2BRJ1MCIu/Tb0z
+obXTBuKFBPlC+lQdo4ev9uj59IxmIPZaTF2lol9hTXAaM4DATCJuugdwVG7jfg7NXyqZ+JR8LfSO
+XNKNifRaOGnYZSWZQ6FHOncllWLqjYTp4S3S7Ec/vDWHfAgGeixRM4HlrVibMjQ1Zrg=</EncryptedPrivateKey></RootCert>		</Parm>
+	</Svc>
+</jxta:CP>
