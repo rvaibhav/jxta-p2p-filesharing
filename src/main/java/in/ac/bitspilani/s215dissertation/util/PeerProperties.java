@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.URL;
 import java.util.Properties;
 
 /**
@@ -19,10 +20,12 @@ public class PeerProperties {
 
     public static final String PEER_RENDEZVOUZ_PORT="peer.rendezvouz.port";
 
+    public static final String PEER_RENDEZVOUZ="peer.rendezvouz";
+
     public static final Properties props = new Properties();
 
     public static void readProperties(){
-        File configFile = new File(PeerProperties.class.getClassLoader().getResource("app.properties").getFile());
+        File configFile = getConfigFile();
         try {
             FileInputStream in = new FileInputStream(configFile);
             props.load(in);
@@ -31,6 +34,21 @@ public class PeerProperties {
         } catch (IOException e) {
             System.out.println("IO exception occurred");
         }
+    }
+
+    public static String getProperty(String key){
+        return props.getProperty(key);
+    }
+
+    private static File getConfigFile() {
+        File configFile = new File("app.properties");
+        if(!configFile.exists()){
+            System.out.println("Config file not found. Looking for command line");
+            /*URL resource = classLoader.getResource("src/main/resources/app.properties");
+            ClassLoader classLoader = PeerProperties.class.getClassLoader();*/
+            configFile = new File(System.getProperty("user.dir") + "/src/main/resources/app.properties");
+        }
+        return configFile;
     }
 
 }
