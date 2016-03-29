@@ -6,43 +6,28 @@ package in.ac.bitspilani.s215dissertation;
 
 import in.ac.bitspilani.s215dissertation.bean.Peer;
 import in.ac.bitspilani.s215dissertation.listener.PeerDiscoveryListener;
-import in.ac.bitspilani.s215dissertation.threads.DiscoveryThread;
-import in.ac.bitspilani.s215dissertation.tools.PopUp;
+import in.ac.bitspilani.s215dissertation.listener.PeerMessageListener;
+import in.ac.bitspilani.s215dissertation.listener.PipeDiscoveryListener;
+import in.ac.bitspilani.s215dissertation.threads.MonitorDirectory;
+import in.ac.bitspilani.s215dissertation.threads.PeerDiscovery;
+import in.ac.bitspilani.s215dissertation.threads.PipeDiscovery;
 import in.ac.bitspilani.s215dissertation.util.PeerProperties;
-import net.jxta.credential.AuthenticationCredential;
-import net.jxta.credential.Credential;
 import net.jxta.discovery.DiscoveryService;
 import net.jxta.document.AdvertisementFactory;
-import net.jxta.document.MimeMediaType;
-import net.jxta.document.XMLElement;
-import net.jxta.exception.PeerGroupException;
 import net.jxta.id.IDFactory;
-import net.jxta.impl.access.pse.PSEAccessService;
-import net.jxta.impl.content.ContentServiceImpl;
-import net.jxta.impl.membership.pse.PSEMembershipService;
-import net.jxta.impl.membership.pse.StringAuthenticator;
-import net.jxta.impl.peergroup.CompatibilityUtils;
-import net.jxta.impl.peergroup.StdPeerGroup;
-import net.jxta.impl.peergroup.StdPeerGroupParamAdv;
-import net.jxta.membership.MembershipService;
-import net.jxta.peer.PeerID;
-import net.jxta.peergroup.NetPeerGroupFactory;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.peergroup.PeerGroupID;
+import net.jxta.pipe.InputPipe;
+import net.jxta.pipe.PipeID;
 import net.jxta.pipe.PipeService;
-import net.jxta.platform.ModuleClassID;
-import net.jxta.platform.ModuleSpecID;
-import net.jxta.platform.NetworkConfigurator;
-import net.jxta.platform.NetworkManager;
-import net.jxta.protocol.ModuleImplAdvertisement;
 import net.jxta.protocol.PipeAdvertisement;
+import net.jxta.util.JxtaBiDiPipe;
 
 import javax.swing.*;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
-import java.net.URL;
-import java.util.Map;
+import java.nio.channels.Pipe;
 
 
 /**
@@ -66,9 +51,15 @@ public class PeerManagement {
 
     private JSplitPane splitPane;
 
-    public static final String name = "Vaibhav";
+    private PeerGroup peerGroup;
 
-    public static final File configurationFile = new File("." + System.getProperty("file.separator") + name);
+    private PeerMessageListener peerMessageListener;
+
+    private InputPipe myPipe;
+
+    public PeerGroup getPeerGroup(){
+        return peerGroup;
+    }
 
     public JSplitPane getSplitPane(){
         return splitPane;
@@ -89,6 +80,7 @@ public class PeerManagement {
         leftPanel.add(leftHeader);
         leftPanel.add(list1);
         leftPanel.setBackground(Color.WHITE);
+        leftPanel.setLayout(new BoxLayout(leftPanel, BoxLayout.Y_AXIS));
         list1.setBackground(Color.WHITE);
         list2.setBackground(Color.WHITE);
         Dimension minimumSize = new Dimension(100, 50);
@@ -111,6 +103,7 @@ public class PeerManagement {
 
     public static void main(String[] args){
         final PeerManagement peerManagement = new PeerManagement();
+        System.out.println("User dir is " + System.getProperty("user.dir"));
         javax.swing.SwingUtilities.invokeLater(new Runnable() {
             public void run() {
 
@@ -125,12 +118,69 @@ public class PeerManagement {
 
     private void joinPeerGroup() throws Exception{
         JxtaGroup jxtaGroup = new JxtaGroup();
-        PeerGroup peerGroup = jxtaGroup.joinGroup();
+        peerGroup = jxtaGroup.joinGroup();
+        /*System.out.println("Group Id conneted to is " + peerGroup.getPeerGroupID());*/
+        startPeerDiscovery(peerGroup);
+        publishPipeAdv(peerGroup);
+        startPipeDiscovery(peerGroup);
+        startDirectoryWatcher(peerGroup);
+    }
+
+    private void startPeerDiscovery(PeerGroup peerGroup) {
         final DiscoveryService discoveryService = peerGroup.getDiscoveryService();
-        PeerDiscoveryListener peerDiscoveryListener = new PeerDiscoveryListener(this);
-        discoveryService.addDiscoveryListener(peerDiscoveryListener);
-        discoveryService.getRemoteAdvertisements(null, DiscoveryService.PEER, null, null, 5);
-        DiscoveryThread discoveryThread = new DiscoveryThread(this, discoveryService);
+        /*PeerDiscoveryListener peerDiscoveryListener = new PeerDiscoveryListener(this);*/
+        /*discoveryService.addDiscoveryListener(peerDiscoveryListener);*/
+        /*discoveryService.getRemoteAdvertisements(null, DiscoveryService.PEER, null, null, 5);*/
+        PeerDiscovery peerDiscovery = new PeerDiscovery(this);
+        Thread thread = new Thread(peerDiscovery);
+        thread.start();
+    }
+
+    private void startPipeDiscovery(PeerGroup peerGroup) {
+        final DiscoveryService discoveryService = peerGroup.getDiscoveryService();
+        /*peerMessageListener = new PeerMessageListener();
+        PipeDiscoveryListener pipeDiscoveryListener = new PipeDiscoveryListener(this);*/
+        /*discoveryService.addDiscoveryListener(pipeDiscoveryListener);
+        discoveryService.getRemoteAdvertisements(null, DiscoveryService.ADV, null, null, 1000);*/
+        PipeDiscovery pipeDiscovery = new PipeDiscovery(this);
+        Thread thread = new Thread(pipeDiscovery);
+        thread.start();
+    }
+
+    private void startDirectoryWatcher(PeerGroup peerGroup){
+        MonitorDirectory monitorDirectory = new MonitorDirectory(this);
+        Thread thread = new Thread(monitorDirectory);
+        thread.start();
+    }
+
+    private void publishPipeAdv(PeerGroup peerGroup){
+        try {
+            PipeAdvertisement pipeAdv = generatePipeAdv(peerGroup);
+            peerMessageListener = new PeerMessageListener();
+            /*myPipe = new JxtaBiDiPipe(peerGroup, pipeAdvertisement, peerMessageListener);*/
+            PipeService pipeService = peerGroup.getPipeService();
+            myPipe = pipeService.createInputPipe(pipeAdv, peerMessageListener);
+            PipeAdvertisement pipeAdvertisement = myPipe.getAdvertisement();
+            DiscoveryService discoveryService = peerGroup.getDiscoveryService();
+            /*discoveryService.publish(pipeAdvertisement);*/
+            discoveryService.remotePublish(pipeAdvertisement);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    private PipeAdvertisement generatePipeAdv(PeerGroup peerGroup){
+        // Creating a Pipe Advertisement
+        String peerName = PeerProperties.getProperty(PeerProperties.PEER_NAME);
+        PipeAdvertisement myPipeAdvertisement = (PipeAdvertisement) AdvertisementFactory.newAdvertisement(PipeAdvertisement.getAdvertisementType());
+        PipeID pipeId = IDFactory.newPipeID(peerGroup.getPeerGroupID(), peerName.getBytes());
+
+        myPipeAdvertisement.setPipeID(pipeId);
+        myPipeAdvertisement.setType(PipeService.PropagateType);
+        myPipeAdvertisement.setName(peerGroup.getPeerID().toString());
+        myPipeAdvertisement.setDescription("Created by " + peerName);
+        return myPipeAdvertisement;
     }
 
     public void populatePeers(Peer peer){

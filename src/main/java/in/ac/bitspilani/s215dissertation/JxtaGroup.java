@@ -25,11 +25,17 @@ public class JxtaGroup {
         try {
             Properties props = PeerProperties.props;
             String name = props.getProperty(PeerProperties.PEER_NAME);
+            boolean rendezvouzMode = Boolean.valueOf(props.getProperty(PeerProperties.PEER_RENDEZVOUZ)).booleanValue();
             PeerID pid = IDFactory.newPeerID(PeerGroupID.defaultNetPeerGroupID, name.getBytes());
-            NetworkManager networkManager = new NetworkManager(NetworkManager.ConfigMode.EDGE, name);
+            NetworkManager networkManager;
+            if(rendezvouzMode){
+                networkManager = new NetworkManager(NetworkManager.ConfigMode.RENDEZVOUS, name);
+            }else {
+                networkManager = new NetworkManager(NetworkManager.ConfigMode.EDGE, name);
+            }
             NetworkConfigurator networkConfigurator = networkManager.getConfigurator();
-            configureRendezvouz(props, networkConfigurator);
-            configureNetworkConfigurator(props, name, networkConfigurator);
+            configureRendezvouz(props, networkConfigurator, rendezvouzMode);
+            configureNetworkConfigurator(props, name, networkConfigurator, rendezvouzMode);
             networkManager.setPeerID(pid);
             networkManager.startNetwork();
             connectedVia = networkManager.getNetPeerGroup();
@@ -46,21 +52,27 @@ public class JxtaGroup {
         return connectedVia;
     }
 
-    private void configureNetworkConfigurator(Properties props, String name, NetworkConfigurator networkConfigurator) {
+    private void configureNetworkConfigurator(Properties props, String name, NetworkConfigurator networkConfigurator, boolean rendezvouzMode) {
         networkConfigurator.setName(name);
         networkConfigurator.setUseMulticast(false);
-        networkConfigurator.setTcpPort(Integer.valueOf(props.getProperty(PeerProperties.PEER_TCP_PORT)));
+        if(rendezvouzMode){
+            networkConfigurator.setTcpPort(Integer.valueOf(props.getProperty(PeerProperties.PEER_RENDEZVOUZ_PORT)));
+        }else {
+            networkConfigurator.setTcpPort(Integer.valueOf(props.getProperty(PeerProperties.PEER_TCP_PORT)));
+        }
         networkConfigurator.setTcpEnabled(true);
         networkConfigurator.setTcpIncoming(true);
         networkConfigurator.setTcpOutgoing(true);
         networkConfigurator.setUseMulticast(false);
     }
 
-    private void configureRendezvouz(Properties props, NetworkConfigurator networkConfigurator) throws UnknownHostException {
-        networkConfigurator.clearRendezvousSeeds();
-        String theSeed = "tcp://" + InetAddress.getLocalHost().getHostAddress() + ":" + props.getProperty(PeerProperties.PEER_RENDEZVOUZ_PORT);
-        URI rendezvouzUri = URI.create(theSeed);
-        networkConfigurator.addSeedRendezvous(rendezvouzUri);
+    private void configureRendezvouz(Properties props, NetworkConfigurator networkConfigurator, boolean rendezvouzMode) throws UnknownHostException {
+        if(!rendezvouzMode) {
+            networkConfigurator.clearRendezvousSeeds();
+            String theSeed = "tcp://" + InetAddress.getLocalHost().getHostAddress() + ":" + props.getProperty(PeerProperties.PEER_RENDEZVOUZ_PORT);
+            URI rendezvouzUri = URI.create(theSeed);
+            networkConfigurator.addSeedRendezvous(rendezvouzUri);
+        }
     }
 
 }
