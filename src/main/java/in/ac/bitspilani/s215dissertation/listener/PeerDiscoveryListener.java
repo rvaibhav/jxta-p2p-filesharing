@@ -1,7 +1,7 @@
 package in.ac.bitspilani.s215dissertation.listener;
 
 import in.ac.bitspilani.s215dissertation.AppObjects;
-import in.ac.bitspilani.s215dissertation.PeerManagement;
+import in.ac.bitspilani.s215dissertation.Context;
 import in.ac.bitspilani.s215dissertation.bean.Peer;
 import net.jxta.discovery.DiscoveryEvent;
 import net.jxta.discovery.DiscoveryListener;
@@ -16,9 +16,9 @@ import java.util.Enumeration;
  */
 public class PeerDiscoveryListener implements DiscoveryListener {
 
-    private PeerManagement context;
+    private Context context;
 
-    public PeerDiscoveryListener(PeerManagement context) {
+    public PeerDiscoveryListener(Context context) {
         this.context = context;
     }
 

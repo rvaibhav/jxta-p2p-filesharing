@@ -1,7 +1,6 @@
 package in.ac.bitspilani.s215dissertation.threads;
 
-import in.ac.bitspilani.s215dissertation.PeerManagement;
-import in.ac.bitspilani.s215dissertation.listener.PeerDiscoveryListener;
+import in.ac.bitspilani.s215dissertation.Context;
 import in.ac.bitspilani.s215dissertation.listener.PipeDiscoveryListener;
 import net.jxta.discovery.DiscoveryService;
 import net.jxta.peergroup.PeerGroup;
@@ -13,9 +12,9 @@ import java.io.IOException;
  */
 public class PipeDiscovery implements Runnable{
 
-    private PeerManagement context;
+    private Context context;
 
-    public PipeDiscovery(PeerManagement context){
+    public PipeDiscovery(Context context){
         this.context = context;
     }
 
