@@ -5,9 +5,7 @@ package in.ac.bitspilani.s215dissertation;
  */
 
 import in.ac.bitspilani.s215dissertation.bean.Peer;
-import in.ac.bitspilani.s215dissertation.listener.PeerDiscoveryListener;
 import in.ac.bitspilani.s215dissertation.listener.PeerMessageListener;
-import in.ac.bitspilani.s215dissertation.listener.PipeDiscoveryListener;
 import in.ac.bitspilani.s215dissertation.threads.MonitorDirectory;
 import in.ac.bitspilani.s215dissertation.threads.PeerDiscovery;
 import in.ac.bitspilani.s215dissertation.threads.PipeDiscovery;
@@ -21,19 +19,21 @@ import net.jxta.pipe.InputPipe;
 import net.jxta.pipe.PipeID;
 import net.jxta.pipe.PipeService;
 import net.jxta.protocol.PipeAdvertisement;
-import net.jxta.util.JxtaBiDiPipe;
 
 import javax.swing.*;
+import javax.swing.plaf.ColorUIResource;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
-import java.nio.channels.Pipe;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 
 /**
  * Created by vaibhavr on 18/03/16.
  */
-public class PeerManagement {
+public class Context {
 
     private static PeerGroupID peerGroupId = null;
 
@@ -48,6 +48,8 @@ public class PeerManagement {
     private JLabel rightHeader;
 
     private DefaultListModel peerList= new DefaultListModel();
+
+    private DefaultListModel filesList= new DefaultListModel();
 
     private JSplitPane splitPane;
 
@@ -70,17 +72,16 @@ public class PeerManagement {
         rightPanel = new JPanel();
         splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
                 leftPanel, rightPanel);
-        leftHeader = new JLabel("Peers");
+        decorateLeftPaneHeader();
+        decorateRightPaneHeader();
         list1 = new JList();
         list2 = new JList();
         list1.setLayoutOrientation(JList.VERTICAL);
         list2.setLayoutOrientation(JList.VERTICAL);
         splitPane.setOneTouchExpandable(true);
         splitPane.setDividerLocation(150);
-        leftPanel.add(leftHeader);
-        leftPanel.add(list1);
-        leftPanel.setBackground(Color.WHITE);
-        leftPanel.setLayout(new BoxLayout(leftPanel, BoxLayout.Y_AXIS));
+        initializeLeftPanel();
+        initializeRightPanel();
         list1.setBackground(Color.WHITE);
         list2.setBackground(Color.WHITE);
         Dimension minimumSize = new Dimension(100, 50);
@@ -88,8 +89,48 @@ public class PeerManagement {
         rightPanel.setMinimumSize(minimumSize);
     }
 
+    private void initializeLeftPanel() {
+        leftPanel.add(leftHeader);
+        leftHeader.setAlignmentX(JLabel.CENTER);
+        leftHeader.setHorizontalAlignment(JLabel.CENTER);
+        leftPanel.add(list1);
+        list1.setAlignmentX(JList.LEFT_ALIGNMENT);
+        leftPanel.setBackground(Color.WHITE);
+        leftPanel.setLayout(new BoxLayout(leftPanel, BoxLayout.Y_AXIS));
+    }
+
+    private void initializeRightPanel(){
+        rightPanel.add(rightHeader);
+        rightHeader.setAlignmentX(JLabel.CENTER);
+        rightHeader.setHorizontalAlignment(JLabel.CENTER);
+        rightPanel.add(list2);
+        list2.setAlignmentX(JList.LEFT_ALIGNMENT);
+        rightPanel.setBackground(Color.WHITE);
+        rightPanel.setLayout(new BoxLayout(rightPanel, BoxLayout.Y_AXIS));
+    }
+
+    private void decorateLeftPaneHeader() {
+        leftHeader = new JLabel("PeerList");
+        leftHeader.setForeground(Color.BLUE);
+        leftHeader.setBackground(Color.WHITE);
+        Font font = new Font(Font.SANS_SERIF, Font.BOLD,15);
+        leftHeader.setFont(font);
+        leftHeader.setOpaque(true);
+
+    }
+
+    private void decorateRightPaneHeader(){
+        rightHeader = new JLabel("List of Files");
+        rightHeader.setForeground(Color.BLUE);
+        rightHeader.setBackground(Color.WHITE);
+        Font font = new Font(Font.SANS_SERIF, Font.BOLD,15);
+        rightHeader.setFont(font);
+        rightHeader.setOpaque(true);
+    }
+
     private void createAndShowGUI() throws Exception{
-        JFrame frame = new JFrame("PeerManagement");
+        PeerProperties.readProperties();
+        JFrame frame = new JFrame(PeerProperties.getProperty(PeerProperties.PEER_NAME));
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.createSplitPane();
         frame.add(this.getSplitPane());
@@ -97,18 +138,18 @@ public class PeerManagement {
         frame.setVisible(true);
         Dimension minimumSize = new Dimension(200, 200);
         frame.setSize(minimumSize);
-        PeerProperties.readProperties();
         joinPeerGroup();
+        showFiles();
     }
 
     public static void main(String[] args){
-        final PeerManagement peerManagement = new PeerManagement();
+        final Context context = new Context();
         System.out.println("User dir is " + System.getProperty("user.dir"));
         javax.swing.SwingUtilities.invokeLater(new Runnable() {
             public void run() {
 
                 try {
-                    peerManagement.createAndShowGUI();
+                    context.createAndShowGUI();
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -119,7 +160,6 @@ public class PeerManagement {
     private void joinPeerGroup() throws Exception{
         JxtaGroup jxtaGroup = new JxtaGroup();
         peerGroup = jxtaGroup.joinGroup();
-        /*System.out.println("Group Id conneted to is " + peerGroup.getPeerGroupID());*/
         startPeerDiscovery(peerGroup);
         publishPipeAdv(peerGroup);
         startPipeDiscovery(peerGroup);
@@ -127,21 +167,12 @@ public class PeerManagement {
     }
 
     private void startPeerDiscovery(PeerGroup peerGroup) {
-        final DiscoveryService discoveryService = peerGroup.getDiscoveryService();
-        /*PeerDiscoveryListener peerDiscoveryListener = new PeerDiscoveryListener(this);*/
-        /*discoveryService.addDiscoveryListener(peerDiscoveryListener);*/
-        /*discoveryService.getRemoteAdvertisements(null, DiscoveryService.PEER, null, null, 5);*/
         PeerDiscovery peerDiscovery = new PeerDiscovery(this);
         Thread thread = new Thread(peerDiscovery);
         thread.start();
     }
 
     private void startPipeDiscovery(PeerGroup peerGroup) {
-        final DiscoveryService discoveryService = peerGroup.getDiscoveryService();
-        /*peerMessageListener = new PeerMessageListener();
-        PipeDiscoveryListener pipeDiscoveryListener = new PipeDiscoveryListener(this);*/
-        /*discoveryService.addDiscoveryListener(pipeDiscoveryListener);
-        discoveryService.getRemoteAdvertisements(null, DiscoveryService.ADV, null, null, 1000);*/
         PipeDiscovery pipeDiscovery = new PipeDiscovery(this);
         Thread thread = new Thread(pipeDiscovery);
         thread.start();
@@ -156,13 +187,11 @@ public class PeerManagement {
     private void publishPipeAdv(PeerGroup peerGroup){
         try {
             PipeAdvertisement pipeAdv = generatePipeAdv(peerGroup);
-            peerMessageListener = new PeerMessageListener();
-            /*myPipe = new JxtaBiDiPipe(peerGroup, pipeAdvertisement, peerMessageListener);*/
+            peerMessageListener = new PeerMessageListener(this);
             PipeService pipeService = peerGroup.getPipeService();
             myPipe = pipeService.createInputPipe(pipeAdv, peerMessageListener);
             PipeAdvertisement pipeAdvertisement = myPipe.getAdvertisement();
             DiscoveryService discoveryService = peerGroup.getDiscoveryService();
-            /*discoveryService.publish(pipeAdvertisement);*/
             discoveryService.remotePublish(pipeAdvertisement);
         } catch (IOException e) {
             e.printStackTrace();
@@ -184,8 +213,30 @@ public class PeerManagement {
     }
 
     public void populatePeers(Peer peer){
-        peerList.addElement(peer.getName());
-        list1.setModel(peerList);
+        if(!PeerProperties.getProperty(PeerProperties.PEER_NAME).equals(peer.getName())) {
+            peerList.addElement(peer.getName());
+            list1.setModel(peerList);
+        }
+    }
+
+    public void showFiles(){
+        Path dir = Paths.get(System.getProperty("user.dir") + "/" + PeerProperties.props.getProperty(PeerProperties.PEER_MONITOR_DIR));
+        if(!Files.exists(dir)){
+            System.out.println("Directory for synchronization does not exist!");
+            return;
+        }
+        File folder = new File(dir.toUri());
+        File[] listOfFiles = folder.listFiles();
+        filesList.clear();
+        for (int i = 0; i < listOfFiles.length; i++) {
+            if (listOfFiles[i].isFile()) {
+                String fileName = listOfFiles[i].getName();
+                if(!AppObjects.ignore(fileName)) {
+                    filesList.addElement(fileName);
+                }
+            }
+        }
+        list2.setModel(filesList);
     }
 
 }

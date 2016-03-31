@@ -1,16 +1,16 @@
 package in.ac.bitspilani.s215dissertation.threads;
 
 import in.ac.bitspilani.s215dissertation.DirectoryWatcher;
-import in.ac.bitspilani.s215dissertation.PeerManagement;
+import in.ac.bitspilani.s215dissertation.Context;
 
 /**
  * Created by vaibhavr on 27/03/16.
  */
 public class MonitorDirectory implements Runnable{
 
-    private PeerManagement context;
+    private Context context;
 
-    public MonitorDirectory(PeerManagement context){
+    public MonitorDirectory(Context context){
         this.context = context;
     }
 

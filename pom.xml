@@ -107,7 +107,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>in.ac.bitspilani.s215dissertation.PeerManagement</mainClass>
+                            <mainClass>in.ac.bitspilani.s215dissertation.Context</mainClass>
                         </manifest>
                     </archive>
                     <appendAssemblyId>false</appendAssemblyId>

@@ -1,12 +1,10 @@
 package in.ac.bitspilani.s215dissertation.listener;
 
 import in.ac.bitspilani.s215dissertation.AppObjects;
-import in.ac.bitspilani.s215dissertation.PeerManagement;
-import in.ac.bitspilani.s215dissertation.bean.Peer;
+import in.ac.bitspilani.s215dissertation.Context;
 import net.jxta.discovery.DiscoveryEvent;
 import net.jxta.discovery.DiscoveryListener;
 import net.jxta.document.Advertisement;
-import net.jxta.impl.protocol.PeerAdv;
 import net.jxta.impl.protocol.PipeAdv;
 import net.jxta.protocol.DiscoveryResponseMsg;
 
@@ -17,9 +15,9 @@ import java.util.Enumeration;
  */
 public class PipeDiscoveryListener implements DiscoveryListener{
 
-    private PeerManagement context;
+    private Context context;
 
-    public PipeDiscoveryListener(PeerManagement context) {
+    public PipeDiscoveryListener(Context context) {
         this.context = context;
     }
 

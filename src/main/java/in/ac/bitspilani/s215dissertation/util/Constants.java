@@ -7,4 +7,10 @@ public class Constants {
 
     public static final String NAMESPACE = "jxta:dissertation:bitszg629t";
 
+    public static final String MESSAGE_FILE_NAME = "FileName";
+
+    public static final String MESSAGE_ACTION = "Action";
+
+    public static final String MESSAGE_BYTES = "FileBytes";
+
 }
