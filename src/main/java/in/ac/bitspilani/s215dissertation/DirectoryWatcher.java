@@ -74,6 +74,7 @@ public class DirectoryWatcher {
 
     private void communicateToPeers(Path filePath, FileAction fileAction){
         String fileName = filePath.getFileName().toString();
+        context.showFiles();
         if(AppObjects.ignore(fileName)){
             System.out.println("Ignoring file " + fileName);
             return;

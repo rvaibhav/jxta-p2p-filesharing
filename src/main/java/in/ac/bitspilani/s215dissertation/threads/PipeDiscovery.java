@@ -2,6 +2,7 @@ package in.ac.bitspilani.s215dissertation.threads;
 
 import in.ac.bitspilani.s215dissertation.Context;
 import in.ac.bitspilani.s215dissertation.listener.PipeDiscoveryListener;
+import in.ac.bitspilani.s215dissertation.util.PeerProperties;
 import net.jxta.discovery.DiscoveryService;
 import net.jxta.peergroup.PeerGroup;
 
@@ -23,10 +24,13 @@ public class PipeDiscovery implements Runnable{
         DiscoveryService discoveryService = peerGroup.getDiscoveryService();
         PipeDiscoveryListener pipeDiscoveryListener = new PipeDiscoveryListener(context);
         discoveryService.addDiscoveryListener(pipeDiscoveryListener);
+        boolean rendezvous = Boolean.valueOf(PeerProperties.getProperty(PeerProperties.PEER_RENDEZVOUZ)).booleanValue();
         while (true) {
             System.out.println("Fetching pipes");
             try {
-                discoveryService.getLocalAdvertisements(DiscoveryService.ADV, null, null);
+                if(rendezvous) {
+                    discoveryService.getLocalAdvertisements(DiscoveryService.ADV, null, null);
+                }
                 discoveryService.getRemoteAdvertisements(null, DiscoveryService.ADV, null, null, 10);
                 Thread.sleep(10000);
             } catch (InterruptedException e) {
